@@ -1,0 +1,94 @@
+.custom-form-control {
+    width: 100%;
+}
+
+.btn-orange {
+    background: #ff7a00;
+}
+
+.itemNavAdd {
+    margin: 40px 0px 0 -343px;
+}
+
+.navbarAdd {
+    position: fixed;
+}
+
+p {
+    font-size: 12px;
+    font-weight: 800;
+    color: #555
+}
+
+.card {
+    background: none;
+    ;
+}
+
+.card-footer {
+    padding: 0;
+}
+
+
+
+.card-footer .card-title {
+    font-weight: bold;
+    font-size: 14px;
+    line-height: 18.29px;
+    color: white;
+    padding: 0;
+}
+
+.detail {
+    font-size: 12px;
+    color: #555;
+    font-weight: 12px;
+    font-weight: normal;
+    margin-top: -15px;
+}
+
+.detail span img {
+    margin: -2px 7px 0 0;
+}
+
+.add-addVideo {
+    margin-left: 10px;
+}
+
+.addTitle {
+    margin-top: 2em;
+    color: #fff;
+}
+
+.formAdd {
+    position: absolute;
+    width: 980px;
+}
+
+.title {
+    width: 100%;
+}
+
+.thumbnail {
+    width: 280px;
+    /* display: none; */
+    cursor: pointer;
+}
+
+.desc {
+    width: 964px;
+}
+
+.btnAdd {
+    width: 964px;
+    background: #FF7A00;
+    color: #fff;
+
+}
+
+.btnAdd:hover {
+    color: #fff;
+    font-weight: bold;
+}
+
+

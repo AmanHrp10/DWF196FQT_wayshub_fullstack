@@ -1,0 +1,45 @@
+/* .newEditChannel{
+    margin-left: 400px;
+    margin-top: 250px;
+} */
+
+.line1{
+    display: flex;
+}
+.inputClass {
+    width: 685px;
+    height: 50px;
+    margin-right: 40px;
+}
+
+.areaClass {
+    width: 1025px;
+}
+
+.fileClass{
+    margin : 1.5rem 0 1.5rem 0
+}
+
+.buttonEditChannel{
+    background: #ff7A00;
+    width: 1025px;
+    margin-left: 0;
+}
+
+.edit-addVideo {
+    margin-left: 10px;
+}
+
+.editTitle {
+    color: #fff;
+    margin-top: 2em;
+}
+
+.desc {
+    width: 965px;
+}
+
+.btnEdit {
+    background: #FF7A00;
+    width: 965px;
+}

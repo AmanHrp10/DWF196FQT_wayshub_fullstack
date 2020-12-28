@@ -1,0 +1,35 @@
+.input-file-wrapper .input-file input {
+    display: none;
+}
+
+.input-file-wrapper {
+    border: 2px solid #bcbcbc;
+    padding: 8px 12px;
+    border-radius: 8px;
+    outline: none;
+    color: #bcbcbc;
+    width: 300px;
+    box-sizing: border-box;
+    background-color: #2e2e2e;
+    font-size: 14px;
+    font-family: "Montserrat";
+    font-weight: 400;
+    height: 40px;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.input-file-wrapper .input-file {
+    display: flex;
+    align-items: center;
+}
+
+.input-file-wrapper .input-file label {
+    margin-bottom: 0;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.input-file-wrapper .input-file img {
+    width: 25px;
+}

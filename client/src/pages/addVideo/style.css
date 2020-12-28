@@ -1,0 +1,13 @@
+.container-md {
+    max-width: 100% !important;
+    padding-right: -50px;
+}
+
+.addSide {
+    width: 300px;
+
+}
+
+.addContent {
+    width: 940px;
+}

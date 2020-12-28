@@ -1,0 +1,19 @@
+.imgRegister {
+    position: absolute;
+    left: 169px;
+    top: 137px;
+}
+
+.landingButtonSignIn {
+    background: #ff7a00;
+    padding: .3em 2em;
+    position: absolute;
+    top: 110%;
+    left: 0;
+}
+
+.form {
+    position: absolute;
+    left: 60%;
+    top: 12%;
+}

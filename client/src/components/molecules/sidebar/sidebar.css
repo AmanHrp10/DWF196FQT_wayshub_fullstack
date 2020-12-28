@@ -1,0 +1,116 @@
+.sideNew {
+    position: fixed;
+    background: #151515;
+    width: 230px;
+    height: 100%;
+    padding-left: 30px;
+    color: #fff;
+    padding-top: 20px;
+}
+
+.logo-sidebar {
+    cursor: pointer;
+}
+
+.channel-list h5 {
+    color: #FF7A00;
+    margin-top:30px;
+
+}
+
+.channelList{
+    max-height: 200px;
+    overflow: hidden;
+}
+.page-landing {
+    margin-top: 30px;
+
+}
+
+.page-landing ul li:hover {
+    color: #fff;
+}
+
+.page-landing ul li img {
+    margin-right: 10px;
+}
+
+
+.channel-list ul li img {
+    margin-right: 10px;
+
+
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 256;
+    background: #151515;
+    line-height: 8.27px;
+    font-size: 14px;
+    font-weight: normal;
+}
+
+.sidebar .wrap {
+    padding: 2em 3.5em;
+}
+
+.logo {
+    padding-bottom: 1em;
+}
+
+.list {
+    margin-bottom: 40px;
+}
+
+.icon {
+    margin-right: 10px;
+    color: #FF7A00;
+}
+
+ul {
+    margin-top: 10px;
+}
+
+ul li {
+    list-style-type: none;
+    padding: .5em 1em;
+}
+
+.listChannel {
+    padding-bottom: 20px;
+}
+
+.listChannel span {
+    margin-right: 10px;
+}
+
+.moreChannel {
+    font-size: 20px;
+    margin: 20px 0 0 25px;
+}
+
+.moreChannel a {
+    text-decoration: none;
+    color: #fff;
+}
+
+a {
+    text-decoration: none;
+    color: #fff;
+
+}
+
+.active {
+    color: #FF7A00;
+}
+
+a:hover,
+Link:hover {
+    text-decoration: none;
+    color: #FF7A00;
+
+}

@@ -1,0 +1,34 @@
+.wrapper {
+    background-color: #161616;
+    width: 380px;
+    border-radius: 10px;
+    padding: 40px 33px;
+    box-sizing: border-box;
+}
+
+.wrapper.login{
+    margin-top: 70px;
+}
+
+.wrapper .title {
+    font-family: "Montserrat";
+    color: #fff;
+    text-align: start;
+    font-weight: 700;
+    font-size: 36px;
+    margin: 0;
+}
+
+.descRegister {
+    height: 20px;
+}
+
+.inputLogin {
+    width: 100%;
+    margin-bottom: 10px;
+    color: #fffffe
+}
+
+.btn-register {
+    background: #ff7a00;
+}
