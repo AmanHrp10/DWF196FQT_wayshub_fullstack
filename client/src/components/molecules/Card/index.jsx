@@ -10,7 +10,9 @@ export default function Card({ id, title, channel, image, views, date, key }) {
             src={image}
             alt={title}
             className='img-fluid'
-            style={{ width: '100%' }}
+            width='100%'
+            height='100%'
+            style={{}}
           />
         </div>
       </Link>

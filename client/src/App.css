@@ -11,46 +11,109 @@ body {
   background-color: #0b0b0b;
 }
 
-.App {
-  text-align: center;
+
+
+/*? Handle css bootstrap */
+** Button */ .btn,
+.btn-primary,
+.btn-success,
+.btn-success:hover,
+.btn-primary:hover,
+.btn-primary:focus {
+  background: none;
+  border: none;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+
+
+.button-danger {
+  background: #eb1e1e;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.button-post {
+  background: #2FC4B2;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+button:active {
+  box-shadow: none;
 }
 
-.App-link {
-  color: #61dafb;
+.button-cancel {
+  background: #e7e7e7;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
+.btn-primary:not(:disabled):not(.disabled).active,
+.btn-primary:not(:disabled):not(.disabled):active,
+.show>.btn-primary.dropdown-toggle {
+  background: none;
+  border: none;
+  box-shadow: none;
 }
 
+.btn-primary.focus.btn-primary:focus {
+  border: none;
+  box-shadow: none;
+}
+
+.btn:focus {
+  border: none;
+  box-shadow: none;
+}
+
+button:focus {
+  border: none;
+}
+
+.form-control:focus {
+  transition: none;
+  box-shadow: none;
+}
+
+.btn-primary:not(:disabled):not(.disabled).active:focus,
+.btn-primary:not(:disabled):not(.disabled):active:focus,
+.show>.btn-primary.dropdown-toggle:focus {
+  border: none;
+  box-shadow: none;
+}
+
+
+
+/** From Input */
+/* textarea.form-control,
+input.form-control {
+  background: #e7e7e7;
+  border: 1px solid #2FC4B2;
+
+} */
+
+
+
+
+/** Dropdown */
+.dropdown-toggle:After,
+.dropdown:After {
+  box-shadow: none;
+}
+
+.show:focus,
+.dropdown-toggle,
+.dropdown-toggle:hover,
+.dropdown-toggle:focus {
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+
+.show>.btn-primary.dropdown-toggle,
+.show>.btn-primary.dropdown-toggle:focus {
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+
+.dropdown button {
+  background: none;
+}
 
 .form-control {
   background: rgba(210, 210, 210, .25);

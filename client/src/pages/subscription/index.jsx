@@ -31,21 +31,27 @@ export default function Subcription() {
         style={{ marginLeft: '265px', paddingTop: '110px', width: '1063px' }}
       >
         <div className='row'>
-          {channels.map((channel) =>
-            channel.videos.map((video) => {
-              return (
-                <div className='col-md-3' key={video.id}>
-                  <Card
-                    id={video.id}
-                    title={video.title}
-                    channel={channel.channelName}
-                    image={`http://localhost:5000/Uploads/${video.thumbnail}`}
-                    views={video.viewCount}
-                    date={Moment(video.createdAt).format('ll')}
-                  />
-                </div>
-              );
-            })
+          {channels.length === 0 ? (
+            <h1 style={{ display: 'flex', margin: 'auto', marginTop: '150px' }}>
+              Not Subscribe a channel
+            </h1>
+          ) : (
+            channels.map((channel) =>
+              channel.videos.map((video) => {
+                return (
+                  <div className='col-md-3' key={video.id}>
+                    <Card
+                      id={video.id}
+                      title={video.title}
+                      channel={channel.channelName}
+                      image={`http://localhost:5000/Uploads/${video.thumbnail}`}
+                      views={video.viewCount}
+                      date={Moment(video.createdAt).format('ll')}
+                    />
+                  </div>
+                );
+              })
+            )
           )}
         </div>
       </div>

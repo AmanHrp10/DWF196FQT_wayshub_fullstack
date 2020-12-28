@@ -10,15 +10,29 @@ import { API } from '../../../config/api';
 
 export default function MyChannel() {
   let [isDesc, setIsDesc] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [state] = useContext(AppContext);
-  const { channel } = state;
+  const [channel, setChannel] = useState();
 
   const [subscribers, setSubscribers] = useState([]);
 
+  const fetchChannel = async () => {
+    try {
+      setLoading(true);
+      const response = await API('/channel');
+      setChannel(response.data.data.user);
+      setLoading(false);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   const fetchSubscribe = async () => {
     try {
+      setLoading(true);
       const response = await API('/subscribe-count');
       setSubscribers(response.data.count);
+      setLoading(false);
     } catch (err) {
       console.log(err);
     }
@@ -32,10 +46,13 @@ export default function MyChannel() {
   };
 
   useEffect(() => {
+    fetchChannel();
     fetchSubscribe();
   }, []);
 
-  return (
+  return loading ? (
+    <h1>Loading...</h1>
+  ) : (
     <>
       <div className='contains'>
         <div className='bg'>
@@ -46,7 +63,7 @@ export default function MyChannel() {
                 : `http://localhost:5000/Uploads/${channel.thumbnail}`
             }
             alt=''
-            style={{ marginLeft: '70px' }}
+            style={{ marginLeft: '70px', objectFit: 'cover' }}
             width='100%'
             height='100%'
             className='imgnav'

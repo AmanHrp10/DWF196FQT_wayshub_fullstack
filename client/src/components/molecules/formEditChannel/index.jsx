@@ -44,7 +44,6 @@ export default function FormEditChannel() {
         description: '',
         photo: '',
       });
-      alr;
 
       router.push('/channel/profile');
       window.location.reload();
@@ -101,7 +100,7 @@ export default function FormEditChannel() {
         style={{
           marginLeft: '250px',
           position: 'absolute',
-          top: '400px',
+          top: '390px',
           transform: 'translate(0, -12px)',
         }}
         name='photo'

@@ -4,27 +4,26 @@ export const AppContext = createContext();
 
 const initialState = {
   isLogin: false,
-  Users: [],
   isLoading: true,
-  channel: null,
+  users: localStorage.getItem('user') ? localStorage.getItem('user') : null,
+  token: localStorage.getItem('token') ? localStorage.getItem('token') : null,
 };
 
 const reducer = (state, action) => {
   switch (action.type) {
     case 'LOGIN':
-      localStorage.setItem('token', action.payload.token);
       return {
         ...state,
         isLogin: true,
         isLoading: false,
-        channel: {
-          id: action.payload.id,
-          channelName: action.payload.channelName,
-          photo: action.payload.photo,
-          thumbnail: action.payload.thumbnail,
-          description: action.payload.description,
-          videos: action.payload.videos,
-        },
+        user: localStorage.setItem(
+          'user',
+          JSON.stringify({
+            id: action.payload.id,
+            channelName: action.payload.channelName,
+          })
+        ),
+        token: localStorage.setItem('token', action.payload.token),
       };
 
     case 'CHANNEL_LOADED':
@@ -32,22 +31,21 @@ const reducer = (state, action) => {
         ...state,
         isLogin: true,
         isLoading: false,
-        channel: {
-          id: action.payload.id,
-          channelName: action.payload.channelName,
-          photo: action.payload.photo,
-          thumbnail: action.payload.thumbnail,
-          description: action.payload.description,
-          videos: action.payload.videos,
-        },
+        user: localStorage.setItem(
+          'user',
+          JSON.stringify({
+            id: action.payload.id,
+            channelName: action.payload.channelName,
+          })
+        ),
       };
     case 'AUTH_ERROR':
     case 'LOGOUT':
-      localStorage.removeItem('token');
       return {
         ...state,
         isLogin: false,
         isLoading: false,
+        token: localStorage.removeItem('token'),
       };
     default:
       throw new Error();

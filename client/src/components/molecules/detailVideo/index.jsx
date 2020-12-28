@@ -17,10 +17,12 @@ import { AppContext } from '../../../context/appContext';
 
 export default function DetailVideo() {
   const [state] = useContext(AppContext);
-  const { channel } = state;
+  const [channel, setChannel] = useState();
   const [video, setVideo] = useState('');
   const [comments, setComments] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  let [isSubscribe, setIsSubscribe] = useState(true);
+  const user = JSON.parse(localStorage.getItem('user'));
   const [formData, setFormData] = useState({
     comment: '',
   });
@@ -28,10 +30,33 @@ export default function DetailVideo() {
   const { comment } = formData;
   let { id } = useParams();
 
+  const fetchChannel = async () => {
+    try {
+      setLoading(true);
+      const response = await API('/channel');
+      setChannel(response.data.data.user);
+      setLoading(false);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   const fetchVideo = async () => {
     try {
+      setLoading(true);
       const response = await API(`/video/${id}`);
       setVideo(response.data.data.video);
+      setLoading(false);
+      setIsSubscribe(false);
+
+      //? Check Subscribing
+      const checkSubscribe = await API(
+        `/subscribes/${response.data.data.video.channel.id}`
+      );
+
+      checkSubscribe.data.data.subscribe === null
+        ? setIsSubscribe(false)
+        : setIsSubscribe(true);
     } catch (err) {
       console.log(err);
     }
@@ -39,14 +64,33 @@ export default function DetailVideo() {
 
   const fetchComments = async () => {
     try {
+      setLoading(true);
       const response = await API(`/video/${id}/comments`);
       setComments(response.data.data.comments);
 
-      setIsLoading(false);
+      setLoading(false);
     } catch (err) {
       console.log(err);
     }
   };
+
+  const subscribe = async () => {
+    try {
+      await API.post(`/subscribe${id}`);
+      setIsSubscribe((isSubscribe = !isSubscribe));
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  const unSubscribe = async () => {
+    try {
+      await API.delete(`/subscribe/${id}`);
+      setIsSubscribe((isSubscribe = !isSubscribe));
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   const handleAddComment = async (e) => {
     // e.preventDefault();
     const body = formData;
@@ -65,19 +109,20 @@ export default function DetailVideo() {
       console.log(err);
     }
   };
-
   useEffect(() => {
-    fetchVideo();
+    fetchChannel();
     fetchComments();
+    fetchVideo();
   }, []);
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const date = Moment(video.createdAt).format('ll');
 
-  return isLoading ? (
+  console.log(channel);
+
+  return loading ? (
     <h1
       className='text-warning'
       style={{ position: 'absolute', top: '50%', left: '50%' }}
@@ -100,17 +145,54 @@ export default function DetailVideo() {
               controls
               url={`http://localhost:5000/Uploads/${video.video}`}
             />
-            <h5 style={{ color: '#fff', fontWeight: '500', marginTop: '20px' }}>
-              {video.title}
-            </h5>
-            <div className='views'>
-              <span style={{ marginRight: '30px' }}>
-                <img src={IconView} alt='' className='mr-2 ml-2' />
-                {video.viewCount}
-              </span>
-              <img src={IconDate} alt='' className='mr-2' />
-              <span>{date}</span>
+            <div className='desc-video'>
+              <h5
+                style={{ color: '#fff', fontWeight: '500', marginTop: '20px' }}
+              >
+                {video.title}
+              </h5>
+              <div className='views'>
+                <span style={{ marginRight: '30px' }}>
+                  <img src={IconView} alt='' className='mr-2 ml-2' />
+                  {video.viewCount}
+                </span>
+                <img src={IconDate} alt='' className='mr-2' />
+                <span>{date}</span>
+                <hr color='white' style={{ border: '.5px solid' }} />
+              </div>
+              <div className='video-profile-wrapper d-flex justify-content-between'>
+                <div className='video-profile d-flex'>
+                  <img
+                    src={
+                      !channel.photo
+                        ? DefaultProfile
+                        : `http://localhost:5000/Uploads/${channel.photo}`
+                    }
+                    alt=''
+                    width='90%'
+                    height='100%'
+                    style={{ marginRight: '10px' }}
+                  />
+                  <div className=''>
+                    <h6 className='text-white'>{channel.channelName}</h6>
+                    <p style={{ fontWeight: '400' }}> Subscriber</p>
+                  </div>
+                </div>
+                {user.id == video.channel.id ? null : (
+                  <div className='video-sub-button'>
+                    <button
+                      className={
+                        isSubscribe ? 'btn btn-secondary' : 'btn btn-custom'
+                      }
+                      onClick={isSubscribe ? unSubscribe : subscribe}
+                    >
+                      {isSubscribe ? 'Unsubscribe' : 'Subscribe'}
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
+
             <hr color='white' style={{ border: '2px solid' }} />
           </div>
           <div className='areaComment'>

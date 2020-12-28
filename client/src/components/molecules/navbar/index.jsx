@@ -13,10 +13,21 @@ import { API } from '../../../config/api';
 
 export default function Navbar({ isAddVideo, img }) {
   const [state, dispatch] = useContext(AppContext);
-  const [isLoading, setIsLoading] = useState(true);
-  const { channel } = state;
+  const [loading, setLoading] = useState(true);
+  const [channel, setChannel] = useState();
 
   const router = useHistory();
+
+  const fetchChannel = async () => {
+    try {
+      setLoading(true);
+      const response = await API('/channel');
+      setChannel(response.data.data.user);
+      setLoading(false);
+    } catch (err) {
+      console.log(err);
+    }
+  };
   const handleLogout = () => {
     dispatch({
       type: 'LOGOUT',
@@ -24,12 +35,12 @@ export default function Navbar({ isAddVideo, img }) {
   };
 
   useEffect(() => {
-    return channel;
+    fetchChannel();
   }, []);
 
-  const loadingData = isLoading;
-
-  return (
+  return loading ? (
+    <h1>Loading...</h1>
+  ) : (
     <Fragment>
       <div className='navNew fixed-top'>
         <FormInput type='text' title='Search..' customClass='navbar-search' />
@@ -52,21 +63,17 @@ export default function Navbar({ isAddVideo, img }) {
         <Dropdown>
           <Dropdown.Toggle>
             <div className='profileNew'>
-              {!channel.photo ? (
-                <img
-                  src={DefaultProfile}
-                  alt=''
-                  width='100%'
-                  style={{ borderRadius: '7px' }}
-                />
-              ) : (
-                <img
-                  src={`http://localhost:5000/Uploads/${channel.photo}`}
-                  alt=''
-                  width='100%'
-                  style={{ borderRadius: '7px' }}
-                />
-              )}
+              <img
+                src={
+                  !channel.photo
+                    ? DefaultProfile
+                    : `http://localhost:5000/uploads/${channel.photo}`
+                }
+                alt=''
+                width='100%'
+                height='100%'
+                style={{ borderRadius: '7px', objectFit: 'cover' }}
+              />
             </div>
           </Dropdown.Toggle>
           <Dropdown.Menu

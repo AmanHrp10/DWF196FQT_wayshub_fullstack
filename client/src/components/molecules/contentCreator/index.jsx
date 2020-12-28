@@ -14,33 +14,11 @@ export default function ContentCreator() {
   const [state] = useContext(AppContext);
   const { channel: thisChannel } = state;
 
-  let [isSubscribe, setIsSubscribe] = useState(false);
+  let [isSubscribe, setIsSubscribe] = useState(true);
 
   const { id } = useParams();
 
-  const handleSubscribed = async () => {
-    setIsSubscribe(true);
-    // const body = {
-    //   channelId: id,
-    // };
-
-    // const config = {
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    // };
-
-    // console.log(body);
-    try {
-      // const response = await API.post('/subscribe', body, config);
-      // console.log(response.data.data.subscribe);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-  const handleUnSubscribed = () => {
-    setIsSubscribe(false);
-  };
+  const handleSubscribe = () => {};
 
   const fetchChannel = async () => {
     try {
@@ -48,11 +26,35 @@ export default function ContentCreator() {
       setChannel(response.data.data.channel);
       setSubscribers(response.data.data.subscribers);
       setLoading(false);
+      setSubscribers(false);
+
+      //? Check Subscribing
+      const checkSubscribe = await API(`/subscribes/${id}`);
+
+      checkSubscribe.data.data.subscribe === null
+        ? setIsSubscribe(false)
+        : setIsSubscribe(true);
     } catch (err) {
       console.log(err);
     }
   };
 
+  const subscribe = async () => {
+    try {
+      await API.post(`/subscribe${id}`);
+      setIsSubscribe((isSubscribe = !isSubscribe));
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  const unSubscribe = async () => {
+    try {
+      await API.delete(`/subscribe/${id}`);
+      setIsSubscribe((isSubscribe = !isSubscribe));
+    } catch (err) {
+      console.log(err);
+    }
+  };
   useEffect(() => {
     fetchChannel();
   }, []);
@@ -80,7 +82,7 @@ export default function ContentCreator() {
               : `http://localhost:5000/Uploads/${channel.thumbnail}`
           }
           alt=''
-          style={{ marginLeft: '720px' }}
+          style={{ marginLeft: '720px', objectFit: 'cover' }}
           width='100%'
           height='100%'
           className='imgnav'
@@ -110,7 +112,7 @@ export default function ContentCreator() {
           <div className='buttonEdit pl-4'>
             <button
               className={isSubscribe ? 'btn btn-secondary' : 'btn btn-custom'}
-              onClick={isSubscribe ? handleUnSubscribed : handleSubscribed}
+              onClick={isSubscribe ? unSubscribe : subscribe}
             >
               {isSubscribe ? 'Unsubscribe' : 'Subscribe'}
             </button>
