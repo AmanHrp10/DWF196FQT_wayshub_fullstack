@@ -30,7 +30,7 @@ export default function Card({ id, title, channel, image, views, date, key }) {
           {title}
         </p>
         <p>{channel}</p>
-        <div className='d-flex detail justify-content-between px-3'>
+        <div className='d-flex detail justify-content-between'>
           <span className=''>
             <img
               src='https://1.bp.blogspot.com/-5R6yDH1CVIc/X7_JkVvviUI/AAAAAAAAHI8/YiuSQ72WD7E-ZG1Gnv7TLl14x8D6Q8_fACLcBGAsYHQ/s12/view%2B1.png'

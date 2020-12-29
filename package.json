@@ -4,12 +4,15 @@
   "description": "Task 2 bootcamp Dumbways",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "client": "npm start --prefix ./client",
+    "dev": "concurrently \"npm start\" \"npm run client\""
   },
   "author": "Amanudin Harahap",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.0.0",
+    "concurrently": "^5.3.0",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",

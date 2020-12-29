@@ -36,8 +36,11 @@
     margin-right: 10px;
 }
 
+.video-profile-wrapper{
+    height: 40px;
+}
+
 .video-sub-button {
-    margin-top: 25px;
     padding : 0 20px;
     border-radius: 4px;
 }

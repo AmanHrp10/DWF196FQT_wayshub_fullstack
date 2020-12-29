@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useState, useContext } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import LogoSidebar from '../../../images/logo/logoApp.png';
 import Home from '../../../images/icon/home.png';
@@ -9,25 +9,28 @@ import { API } from '../../../config/api';
 import DefaultProfile from '../../../images/channel/defaultProfile.png';
 import Button from '../../atoms/button';
 import './sidebar.css';
+import { AppContext } from '../../../context/appContext';
 
 export default function Sidebar({ isHome, isSubscribed }) {
-  const [subscribers, setSubscribers] = useState([]);
+  const [state, dispatch] = useContext(AppContext);
   const router = useHistory();
 
   const fetchSubscribers = async () => {
     try {
       const response = await API('/subscribes');
-
-      setSubscribers(response.data.data.subscribed);
+      if (response.data.status === 'Request success') {
+        dispatch({
+          type: 'LOAD_SUBSCRIBTION',
+          payload: response.data.data,
+        });
+      }
     } catch (err) {
       console.log(err);
     }
   };
   useEffect(() => {
     fetchSubscribers();
-  }, []);
-
-  const handleClick = () => {};
+  }, [state]);
 
   return (
     <Fragment>
@@ -53,51 +56,46 @@ export default function Sidebar({ isHome, isSubscribed }) {
           </ul>
         </div>
         <div className='channel-list'>
-          <h5>Channels</h5>
+          {state.subscribtion.length > 0 && <h5>Channels</h5>}
           <ul className='channelList'>
-            {subscribers.map((channel, index) => (
-              <li
-                key={index}
-                style={{
-                  textOverflow: 'ellipsis',
-                  overflow: 'hidden',
-                  width: '100%',
-                  display: 'inline-block',
-                  whiteSpace: 'nowrap',
-                  cursor: 'pointer',
-                }}
-                onClick={() => {
-                  router.push(`/content-creator/${channel.id}`);
-                  window.location.reload();
-                }}
-              >
-                {channel.thumbnail === null ? (
+            {state.subscribtion
+              .sort((a, b) => b.id - a.id)
+              .map((channel, index) => (
+                <li
+                  key={index}
+                  style={{
+                    textOverflow: 'ellipsis',
+                    overflow: 'hidden',
+                    width: '100%',
+                    display: 'inline-block',
+                    whiteSpace: 'nowrap',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => {
+                    router.push(`/content-creator/${channel.id}`);
+                    window.location.reload();
+                  }}
+                >
                   <img
                     style={{
                       width: '40px',
                       height: '40px',
                       borderRadius: '5px',
                     }}
-                    src={DefaultProfile}
+                    src={
+                      !channel.photo
+                        ? DefaultProfile
+                        : `http://localhost:5000/uploads/${channel.photo}`
+                    }
                     alt=''
                   />
-                ) : (
-                  <img
-                    style={{
-                      width: '40px',
-                      height: '40px',
-                      borderRadius: '5px',
-                    }}
-                    src={`http://localhost:5000/Uploads/${channel.photo}`}
-                    alt=''
-                  />
-                )}
-
-                {channel.channelName}
-              </li>
-            ))}
+                  {channel.channelName}
+                </li>
+              ))}
           </ul>
-          <Button title='Show More' customClass='btn-secondary ml-4' />
+          {state.subscribtion > 5 && (
+            <Button title='Show More' customClass='btn-secondary ml-4' />
+          )}
         </div>
       </div>
     </Fragment>

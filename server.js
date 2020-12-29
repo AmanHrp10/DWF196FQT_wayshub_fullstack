@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
+require('dotenv').config();
 
 //? Use express bodyParser
 app.use(express.json());
@@ -9,7 +10,6 @@ app.use(express.json());
 const port = process.env.PORT || 5000;
 
 //? Config
-require('dotenv').config();
 
 //? Using library
 

@@ -22,7 +22,6 @@ export default function Subcription() {
   useEffect(() => {
     fetchVideo();
   }, []);
-  // console.log();
   return (
     <Fragment>
       <MainMenu isSubscribed />
@@ -37,20 +36,22 @@ export default function Subcription() {
             </h1>
           ) : (
             channels.map((channel) =>
-              channel.videos.map((video) => {
-                return (
-                  <div className='col-md-3' key={video.id}>
-                    <Card
-                      id={video.id}
-                      title={video.title}
-                      channel={channel.channelName}
-                      image={`http://localhost:5000/Uploads/${video.thumbnail}`}
-                      views={video.viewCount}
-                      date={Moment(video.createdAt).format('ll')}
-                    />
-                  </div>
-                );
-              })
+              channel.videos
+                .sort((a, b) => b.id - a.id)
+                .map((video) => {
+                  return (
+                    <div className='col-md-3' key={video.id}>
+                      <Card
+                        id={video.id}
+                        title={video.title}
+                        channel={channel.channelName}
+                        image={`http://localhost:5000/Uploads/${video.thumbnail}`}
+                        views={video.viewCount}
+                        date={Moment(video.createdAt).format('ll')}
+                      />
+                    </div>
+                  );
+                })
             )
           )}
         </div>

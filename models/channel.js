@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       //  * Relationship
       Channel.belongsToMany(models.Channel, {
-        as: 'channels',
+        as: 'subscribers',
         foreignKey: 'channelId',
         through: 'Subscribes',
       });

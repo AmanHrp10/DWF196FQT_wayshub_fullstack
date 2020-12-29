@@ -11,6 +11,7 @@ const {
   removeSubscribe,
   getSubscribers,
   getCountSubscriber,
+  getSubscribeById,
 } = require('../controllers/subscribe');
 
 //? Register & Login
@@ -24,6 +25,7 @@ const {
   getChannelById,
   editChannel,
   deleteChannel,
+  getMyProfile,
 } = require('../controllers/channelSub');
 
 //? Video
@@ -47,10 +49,11 @@ const {
 //! Routers
 
 //? Susbcribe routes
-router.post('/subscribe', Private, addSubscribe);
+router.post('/subscribe/:id', Private, addSubscribe);
 router.delete('/subscribe/:id', Private, removeSubscribe);
 router.get('/subscribes', Private, getSubscribers);
 router.get('/subscribe-count', Private, getCountSubscriber);
+router.get('/subscribe/:id', Private, getSubscribeById);
 
 //? Register & Login route
 router.post('/register', register);
@@ -60,6 +63,7 @@ router.get('/check-auth', Private, checkAuth);
 //? channel routes
 router.get('/channels', getChannelsAll);
 router.get('/channel/:id', getChannelById);
+router.get('/channel', Private, getMyProfile);
 router.patch(
   '/channel/:id',
   uploadFile('thumbnail', 'photo'),

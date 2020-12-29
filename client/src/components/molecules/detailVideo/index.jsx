@@ -9,33 +9,39 @@ import DefaultProfile from '../../../images/channel/defaultProfile.png';
 // library
 import ReactPlayer from 'react-player';
 import { useState, useEffect, useContext } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 import './detailVideo.css';
 import { API } from '../../../config/api';
 import Moment from 'moment';
 import { AppContext } from '../../../context/appContext';
 
 export default function DetailVideo() {
-  const [state] = useContext(AppContext);
-  const [channel, setChannel] = useState();
+  const [state, dispatch] = useContext(AppContext);
   const [video, setVideo] = useState('');
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
-  let [isSubscribe, setIsSubscribe] = useState(true);
-  const user = JSON.parse(localStorage.getItem('user'));
+  let [isSubscribe, setIsSubscribe] = useState(false);
+  const [subscriber, setSubscriber] = useState();
+  const channel = JSON.parse(localStorage.getItem('user'));
   const [formData, setFormData] = useState({
     comment: '',
   });
 
   const { comment } = formData;
   let { id } = useParams();
+  const router = useHistory();
 
-  const fetchChannel = async () => {
+  const fetchSubscribers = async () => {
     try {
-      setLoading(true);
-      const response = await API('/channel');
-      setChannel(response.data.data.user);
-      setLoading(false);
+      const subscribtions = await API('/subscribes');
+
+      if (subscribtions.data.status === 'Request success') {
+        dispatch({
+          type: 'LOAD_SUBSCRIBTION',
+          payload: subscribtions.data.data,
+        });
+        return;
+      }
     } catch (err) {
       console.log(err);
     }
@@ -44,29 +50,22 @@ export default function DetailVideo() {
   const fetchVideo = async () => {
     try {
       setLoading(true);
+
+      const responseCommment = await API(`/video/${id}/comments`);
+      setComments(responseCommment.data.data.comments);
+
       const response = await API(`/video/${id}`);
       setVideo(response.data.data.video);
-      setLoading(false);
-      setIsSubscribe(false);
+      setSubscriber(response.data.data.video.channel.subscribers.length);
 
-      //? Check Subscribing
+      // setIsSubscribe(false);
+
       const checkSubscribe = await API(
-        `/subscribes/${response.data.data.video.channel.id}`
+        `/subscribe/${response.data.data.video.channel.id}`
       );
-
-      checkSubscribe.data.data.subscribe === null
+      checkSubscribe.data.status === 'Request failed'
         ? setIsSubscribe(false)
         : setIsSubscribe(true);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const fetchComments = async () => {
-    try {
-      setLoading(true);
-      const response = await API(`/video/${id}/comments`);
-      setComments(response.data.data.comments);
 
       setLoading(false);
     } catch (err) {
@@ -76,16 +75,47 @@ export default function DetailVideo() {
 
   const subscribe = async () => {
     try {
-      await API.post(`/subscribe${id}`);
-      setIsSubscribe((isSubscribe = !isSubscribe));
+      const response = await API.post(`/subscribe/${video.channel.id}`);
+      if (response.data.status === 'Request success') {
+        setSubscriber(subscriber + 1);
+        setIsSubscribe((isSubscribe = !isSubscribe));
+        const subscribe = [...state.subscribtions];
+        subscribe.push(response.data.data.subscribed);
+
+        const afterSubscribe = {
+          subscriptions: subscribe,
+        };
+
+        dispatch({
+          type: 'SUBSCRIBE',
+          payload: afterSubscribe,
+        });
+      }
     } catch (err) {
       console.log(err);
     }
   };
   const unSubscribe = async () => {
     try {
-      await API.delete(`/subscribe/${id}`);
-      setIsSubscribe((isSubscribe = !isSubscribe));
+      const response = await API.delete(`/subscribe/${video.channel.id}`);
+      if (response.data.status === 'Request success') {
+        setSubscriber(subscriber - 1);
+        setIsSubscribe((isSubscribe = !isSubscribe));
+        const indexUnsubsribe = state.subscribtions.findIndex(
+          (subscribtion) => subscribtion.id === parseInt(response.data.data.id)
+        );
+        const subscribe = [...state.subscribtions];
+        subscribe.splice(indexUnsubsribe, 1);
+
+        const afterUnsubscribe = {
+          subscriprions: subscribe,
+        };
+
+        dispatch({
+          type: 'UNSUBSCRIBE',
+          payload: afterUnsubscribe,
+        });
+      }
     } catch (err) {
       console.log(err);
     }
@@ -110,17 +140,14 @@ export default function DetailVideo() {
     }
   };
   useEffect(() => {
-    fetchChannel();
-    fetchComments();
     fetchVideo();
-  }, []);
+    fetchSubscribers();
+  }, [id]);
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const date = Moment(video.createdAt).format('ll');
-
-  console.log(channel);
 
   return loading ? (
     <h1
@@ -143,7 +170,7 @@ export default function DetailVideo() {
             <ReactPlayer
               width='100%'
               controls
-              url={`http://localhost:5000/Uploads/${video.video}`}
+              url={`http://localhost:5000/uploads/${video.video}`}
             />
             <div className='desc-video'>
               <h5
@@ -161,24 +188,35 @@ export default function DetailVideo() {
                 <hr color='white' style={{ border: '.5px solid' }} />
               </div>
               <div className='video-profile-wrapper d-flex justify-content-between'>
-                <div className='video-profile d-flex'>
+                <div
+                  className='video-profile d-flex '
+                  onClick={
+                    video.channel.id === channel.id
+                      ? () => router.push(`/channel/profile`)
+                      : () =>
+                          router.push(`/content-creator/${video.channel.id}`)
+                  }
+                  style={{ cursor: 'pointer' }}
+                >
                   <img
                     src={
-                      !channel.photo
+                      !video.channel.photo
                         ? DefaultProfile
-                        : `http://localhost:5000/Uploads/${channel.photo}`
+                        : `http://localhost:5000/uploads/${video.channel.photo}`
                     }
                     alt=''
-                    width='90%'
-                    height='100%'
+                    width='50%'
+                    height='50%'
                     style={{ marginRight: '10px' }}
                   />
-                  <div className=''>
-                    <h6 className='text-white'>{channel.channelName}</h6>
-                    <p style={{ fontWeight: '400' }}> Subscriber</p>
+                  <div style={{ width: '500px' }}>
+                    <h6 className='text-white' style={{ whiteSpace: 'nowrap' }}>
+                      {loading || !video ? '0' : video.channel.channelName}
+                    </h6>
+                    <p style={{ fontWeight: '400' }}>{subscriber} Subscriber</p>
                   </div>
                 </div>
-                {user.id == video.channel.id ? null : (
+                {channel.id == video.channel.id ? null : (
                   <div className='video-sub-button'>
                     <button
                       className={
@@ -201,7 +239,7 @@ export default function DetailVideo() {
                 src={
                   !channel.photo
                     ? DefaultProfile
-                    : `http://localhost:5000/Uploads/${channel.photo}`
+                    : `http://localhost:5000/uploads/${channel.photo}`
                 }
                 alt=''
                 width='45px'
@@ -225,18 +263,20 @@ export default function DetailVideo() {
                 Post
               </button>
             </div>
-            {comments.map((comment, index) => (
-              <Comment
-                key={index}
-                channel={comment.channel.channelName}
-                img={
-                  !comment.channel.photo
-                    ? DefaultProfile
-                    : `http://localhost:5000/Uploads/${comment.channel.photo}`
-                }
-                text={comment.comment}
-              />
-            ))}
+            {comments
+              .sort((a, b) => b.id - a.id)
+              .map((comment, index) => (
+                <Comment
+                  key={index}
+                  channel={comment.channel.channelName}
+                  img={
+                    !comment.channel.photo
+                      ? DefaultProfile
+                      : `http://localhost:5000/Uploads/${comment.channel.photo}`
+                  }
+                  text={comment.comment}
+                />
+              ))}
           </div>
         </div>
         <div className='recomendation'>
@@ -244,7 +284,7 @@ export default function DetailVideo() {
           <hr color='white' />
           {HomeVideos.map((video, index) => (
             <Card
-              key={index}
+              key={video.id}
               id={video.id}
               title={video.title}
               channel={video.channel}

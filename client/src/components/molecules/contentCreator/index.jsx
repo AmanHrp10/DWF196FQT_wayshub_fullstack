@@ -11,29 +11,50 @@ export default function ContentCreator() {
   const [channel, setChannel] = useState();
   const [loading, setLoading] = useState(true);
   let [subscribers, setSubscribers] = useState();
-  const [state] = useContext(AppContext);
+  const [state, dispatch] = useContext(AppContext);
   const { channel: thisChannel } = state;
 
-  let [isSubscribe, setIsSubscribe] = useState(true);
+  let [isSubscribe, setIsSubscribe] = useState(false);
 
   const { id } = useParams();
 
-  const handleSubscribe = () => {};
+  const fetchSubscribers = async () => {
+    try {
+      const subscribtions = await API('/subscribes');
+
+      if (subscribtions.data.status === 'Request success') {
+        dispatch({
+          type: 'LOAD_SUBSCRIBTION',
+          payload: subscribtions.data.data,
+        });
+        return;
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const fetchChannel = async () => {
     try {
+      setLoading(true);
       const response = await API(`/channel/${id}`);
       setChannel(response.data.data.channel);
       setSubscribers(response.data.data.subscribers);
-      setLoading(false);
-      setSubscribers(false);
+
+      // setIsSubscribe(false);
+
+      // dispatch({
+      //   type: 'CHANNEL_SUBSCRIBE',
+      //   payload: response.data.data.
+      // })
 
       //? Check Subscribing
-      const checkSubscribe = await API(`/subscribes/${id}`);
+      const checkSubscribe = await API(`/subscribe/${id}`);
 
-      checkSubscribe.data.data.subscribe === null
+      checkSubscribe.data.status === 'Request failed'
         ? setIsSubscribe(false)
         : setIsSubscribe(true);
+      setLoading(false);
     } catch (err) {
       console.log(err);
     }
@@ -41,21 +62,53 @@ export default function ContentCreator() {
 
   const subscribe = async () => {
     try {
-      await API.post(`/subscribe${id}`);
-      setIsSubscribe((isSubscribe = !isSubscribe));
+      const response = await API.post(`/subscribe/${id}`);
+      if (response.data.status === 'Request success') {
+        setSubscribers(subscribers + 1);
+        setIsSubscribe((isSubscribe = !isSubscribe));
+        const subscribe = [...state.subscribtions];
+        subscribe.push(response.data.data.subscribed);
+
+        const afterSubscribe = {
+          subscriptions: subscribe,
+        };
+
+        dispatch({
+          type: 'SUBSCRIBE',
+          payload: afterSubscribe,
+        });
+      }
     } catch (err) {
       console.log(err);
     }
   };
   const unSubscribe = async () => {
     try {
-      await API.delete(`/subscribe/${id}`);
-      setIsSubscribe((isSubscribe = !isSubscribe));
+      const response = await API.delete(`/subscribe/${id}`);
+      if (response.data.status === 'Request success') {
+        setSubscribers(subscribers - 1);
+        setIsSubscribe((isSubscribe = !isSubscribe));
+        const indexUnsubsribe = state.subscribtions.findIndex(
+          (subscribtion) => subscribtion.id === parseInt(response.data.data.id)
+        );
+        const subscribe = [...state.subscribtions];
+        subscribe.splice(indexUnsubsribe, 1);
+
+        const afterUnsubscribe = {
+          subscriprions: subscribe,
+        };
+
+        dispatch({
+          type: 'UNSUBSCRIBE',
+          payload: afterUnsubscribe,
+        });
+      }
     } catch (err) {
       console.log(err);
     }
   };
   useEffect(() => {
+    fetchSubscribers();
     fetchChannel();
   }, []);
 
@@ -125,18 +178,20 @@ export default function ContentCreator() {
           </div>
         ) : (
           <div className='row'>
-            {channel.videos.map((video) => (
-              <div className='col-md-3' key={video.id}>
-                <Card
-                  id={video.id}
-                  title={video.title}
-                  channel={channel.channelName}
-                  image={`http://localhost:5000/Uploads/${video.thumbnail}`}
-                  views={video.viewCount}
-                  date={Moment(video.createdAt).format('ll')}
-                />
-              </div>
-            ))}
+            {channel.videos
+              .sort((a, b) => b.id - a.id)
+              .map((video) => (
+                <div className='col-md-3' key={video.id}>
+                  <Card
+                    id={video.id}
+                    title={video.title}
+                    channel={channel.channelName}
+                    image={`http://localhost:5000/Uploads/${video.thumbnail}`}
+                    views={video.viewCount}
+                    date={Moment(video.createdAt).format('ll')}
+                  />
+                </div>
+              ))}
           </div>
         )}
       </div>

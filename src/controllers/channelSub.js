@@ -43,8 +43,72 @@ exports.getChannelsAll = async (req, res) => {
   }
 };
 
-//? Get data by id
+//? Get Channel Login
+exports.getMyProfile = async (req, res) => {
+  try {
+    const { id } = req.id;
 
+    const user = await Channel.findOne({
+      where: {
+        id,
+      },
+      attributes: {
+        exclude: ['password', 'createdAt', 'updatedAt'],
+      },
+      include: [
+        {
+          model: Video,
+          as: 'videos',
+          attributes: {
+            exclude: ['createdAt', 'updatedAt', 'channelId', 'ChannelId'],
+          },
+        },
+        {
+          model: Channel,
+          as: 'subscribers',
+          attributes: {
+            exclude: ['createdAt', 'updatedAt', 'password'],
+          },
+          through: {
+            attributes: [],
+          },
+        },
+        {
+          model: Channel,
+          as: 'subscribed',
+          attributes: {
+            exclude: ['createdAt', 'updatedAt', 'password'],
+          },
+          through: {
+            attributes: [],
+          },
+        },
+      ],
+    });
+
+    if (!user) {
+      return res.send({
+        status: 'Request failed',
+        message: 'Channel not found',
+      });
+    }
+
+    res.send({
+      status: 'Request success',
+      message: 'Profile was fetched',
+      data: {
+        user,
+      },
+    });
+  } catch (err) {
+    return res.send({
+      status: 'Request failed',
+      message: err.message,
+    });
+  }
+};
+
+//? Get data by id
 exports.getChannelById = async (req, res) => {
   try {
     // const { id } = req.id;

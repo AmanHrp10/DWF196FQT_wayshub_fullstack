@@ -14,24 +14,12 @@ export default function MyChannel() {
   const [state] = useContext(AppContext);
   const [channel, setChannel] = useState();
 
-  const [subscribers, setSubscribers] = useState([]);
-
   const fetchChannel = async () => {
     try {
       setLoading(true);
       const response = await API('/channel');
-      setChannel(response.data.data.user);
-      setLoading(false);
-    } catch (err) {
-      console.log(err);
-    }
-  };
 
-  const fetchSubscribe = async () => {
-    try {
-      setLoading(true);
-      const response = await API('/subscribe-count');
-      setSubscribers(response.data.count);
+      setChannel(response.data.data.user);
       setLoading(false);
     } catch (err) {
       console.log(err);
@@ -47,8 +35,9 @@ export default function MyChannel() {
 
   useEffect(() => {
     fetchChannel();
-    fetchSubscribe();
   }, []);
+
+  console.log(channel);
 
   return loading ? (
     <h1>Loading...</h1>
@@ -85,7 +74,7 @@ export default function MyChannel() {
             </div>
             <div className='channelDesc'>
               <h6 className='text-white'>{channel.channelName}</h6>
-              <p>{subscribers} Subscriber</p>
+              <p>{channel.subscribers.length} Subscriber</p>
             </div>
             <div className='buttonEdit'>
               <Link to='/channel/edit'>

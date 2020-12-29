@@ -1,5 +1,4 @@
 import MainMenu from '../../components/molecules/mainMenu';
-import Videos from '../../API/homeVideo';
 import Card from '../../components/molecules/Card';
 import { Fragment, useState, useEffect } from 'react';
 import { API } from '../../config/api';

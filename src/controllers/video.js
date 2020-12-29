@@ -67,6 +67,14 @@ exports.getVideoById = async (req, res) => {
           attributes: {
             exclude: ['createdAt', 'updatedAt', 'password'],
           },
+          include: {
+            model: Channel,
+            as: 'subscribers',
+            attributes: ['id', 'email', 'channelName'],
+            through: {
+              attributes: [],
+            },
+          },
         },
         {
           model: Comment,

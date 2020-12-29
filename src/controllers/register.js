@@ -58,7 +58,12 @@ exports.register = async (req, res) => {
       message: 'Your account was registered',
       data: {
         channel: {
+          id: channel.id,
           email: channel.email,
+          channelName: channel.channelName,
+          photo: channel.photo,
+          thumbnail: channel.thumbnail,
+          description: channel.description,
           token,
         },
       },

@@ -79,7 +79,6 @@ exports.login = async (req, res) => {
           photo: channel.photo,
           thumbnail: channel.thumbnail,
           description: channel.description,
-          videos: channel.videos,
           token,
         },
       },

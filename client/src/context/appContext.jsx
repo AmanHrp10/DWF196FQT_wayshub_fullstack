@@ -7,6 +7,7 @@ const initialState = {
   isLoading: true,
   users: localStorage.getItem('user') ? localStorage.getItem('user') : null,
   token: localStorage.getItem('token') ? localStorage.getItem('token') : null,
+  subscribtion: [],
 };
 
 const reducer = (state, action) => {
@@ -39,6 +40,22 @@ const reducer = (state, action) => {
           })
         ),
       };
+    case 'SUBSCRIBE':
+      return {
+        ...state,
+        subscribtion: action.payload.subscribe,
+      };
+    case 'UNSUBSCRIBE':
+      return {
+        ...state,
+        subscribtion: action.payload.subscribe,
+      };
+    case 'LOAD_SUBSCRIBTION':
+      return {
+        ...state,
+        subscribtion: action.payload.subscribed,
+      };
+
     case 'AUTH_ERROR':
     case 'LOGOUT':
       return {
