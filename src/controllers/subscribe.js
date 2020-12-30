@@ -1,4 +1,5 @@
 const { Subscribe, Channel, Video } = require('../../models');
+const { Op } = require('sequelize');
 
 //? Add subscribe
 exports.addSubscribe = async (req, res) => {
@@ -48,15 +49,18 @@ exports.addSubscribe = async (req, res) => {
     }
 
     //? Add subscribe
-    const newSubscribe = await Subscribe.create({
+    await Subscribe.create({
       channelId,
       subsChannelId: id,
     });
 
     //? Get channel was subscribed
-    const subscribed = await Subscribe.findOne({
+    const subscribed = await Channel.findOne({
       where: {
-        id: newSubscribe.id,
+        id: channelId,
+      },
+      attributes: {
+        exclude: ['password', 'createdAt', 'updatedAt'],
       },
     });
 
@@ -136,7 +140,7 @@ exports.getSubscribers = async (req, res) => {
           attributes: [],
         },
         attributes: {
-          exclude: ['password', 'createdAt', 'updatedAt', 'thumbnail', 'photo'],
+          exclude: ['password', 'createdAt', 'updatedAt', 'thumbnail'],
         },
         include: {
           model: Video,
@@ -159,6 +163,77 @@ exports.getSubscribers = async (req, res) => {
       message: 'Subscribtion was fetching',
       count: subscribtion.subscribed.length,
       data: subscribtion,
+    });
+  } catch (err) {
+    return res.send({
+      status: 'Request failed',
+      message: err.message,
+    });
+  }
+};
+
+//? Get subscribe video filter
+exports.getSubscribersVideoFilter = async (req, res) => {
+  try {
+    const { id } = req.id;
+    const { title } = req.body;
+
+    //? Get channel as login user
+    const subscribtion = await Channel.findOne({
+      where: {
+        id,
+      },
+      attributes: [],
+      include: {
+        model: Channel,
+        as: 'subscribed',
+        through: {
+          attributes: [],
+        },
+        attributes: {
+          exclude: ['password', 'createdAt', 'updatedAt', 'thumbnail'],
+        },
+        include: {
+          model: Video,
+          as: 'videos',
+          attributes: {
+            exclude: ['updatedAt', 'channelId', 'ChannelId'],
+          },
+        },
+      },
+    });
+
+    if (!subscribtion) {
+      return res.send({
+        status: 'Request failed',
+        message: "don't have a subscriber",
+      });
+    }
+
+    let videos = [];
+    subscribtion.subscribed.map((channel) =>
+      channel.videos.map((video) =>
+        videos.push({
+          id: video.id,
+          title: video.title,
+          thumbnail: video.thumbnail,
+          video: video.video,
+          viewCount: video.viewCount,
+          createdAt: video.createdAt,
+          channel: {
+            id: channel.id,
+            channelName: channel.channelName,
+          },
+        })
+      )
+    );
+
+    const videoFilter = videos.filter((video) => video.title == req.body.title);
+    res.send({
+      status: 'Request success',
+      message: 'Subscribtion was fetching',
+      count: videos.length,
+      data: videoFilter,
     });
   } catch (err) {
     return res.send({

@@ -40,18 +40,30 @@ export default function MyChannel() {
   console.log(channel);
 
   return loading ? (
-    <h1>Loading...</h1>
+    <h1
+      className='text-warning d-flex flex-column'
+      style={{ position: 'absolute', top: '40%', left: '50%' }}
+    >
+      <div
+        className='spinner-grow text-warning'
+        style={{ width: '6rem', height: '6rem' }}
+        role='status'
+      ></div>
+      <span className='spinner' style={{ marginLeft: '-20px' }}>
+        Loading...
+      </span>
+    </h1>
   ) : (
     <>
       <div className='contains'>
         <div className='bg'>
           <img
             src={
-              !channel.thumbnail
+              loading || !JSON.parse(channel.thumbnail)
                 ? DefaultProfile
-                : `http://localhost:5000/Uploads/${channel.thumbnail}`
+                : JSON.parse(channel.thumbnail).path
             }
-            alt=''
+            alt='thumbnail'
             style={{ marginLeft: '70px', objectFit: 'cover' }}
             width='100%'
             height='100%'
@@ -63,13 +75,14 @@ export default function MyChannel() {
             <div className='image'>
               <img
                 src={
-                  !channel.photo
+                  loading || !JSON.parse(channel.photo)
                     ? DefaultProfile
-                    : `http://localhost:5000/Uploads/${channel.photo}`
+                    : JSON.parse(channel.photo).path
                 }
-                alt=''
+                alt='photo'
                 width='90%'
                 height='100%'
+                style={{ objectFit: 'cover', borderRadius: '5px' }}
               />
             </div>
             <div className='channelDesc'>

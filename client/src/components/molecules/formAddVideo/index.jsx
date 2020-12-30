@@ -6,11 +6,13 @@ import AddThumbnail from '../../../images/icon/addThumbnail.png';
 import AddVideo from '../../../images/icon/addActive.png';
 import './formAddVideo.css';
 
-import { Fragment, useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import { API } from '../../../config/api';
 import { useHistory } from 'react-router-dom';
 
 export default function FormAdd() {
+  const fileThumbnail = React.useRef();
+  const fileVideo = React.useRef();
   const [formData, setFormData] = useState({
     title: '',
     thumbnail: '',
@@ -26,10 +28,17 @@ export default function FormAdd() {
 
     const body = new FormData();
     body.append('title', title);
-    body.append('thumbnail', thumbnail);
     body.append('description', description);
+    body.append('thumbnail', thumbnail);
     body.append('video', video);
 
+    // if (fileThumbnail.current.files[0]) {
+    //   body.append('thumbnail', thumbnail);
+    // }
+
+    // if (fileVideo.current.files[0]) {
+    //   body.append('video', video);
+    // }
     const config = {
       headers: {
         'content-type': 'multipart/form-data',
@@ -38,6 +47,11 @@ export default function FormAdd() {
 
     try {
       const response = await API.post('/video', body, config);
+      console.log(response);
+
+      if (response.data.status === 'Request failed') {
+        console.log('Error');
+      }
       setFormData({
         title: '',
         thumbnail: '',

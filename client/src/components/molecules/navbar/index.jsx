@@ -11,7 +11,7 @@ import { AppContext } from '../../../context/appContext';
 import './navbar.css';
 import { API } from '../../../config/api';
 
-export default function Navbar({ isAddVideo, img }) {
+export default function Navbar({ isAddVideo, img, onChange }) {
   const [state, dispatch] = useContext(AppContext);
   const [loading, setLoading] = useState(true);
   const [channel, setChannel] = useState();
@@ -38,12 +38,15 @@ export default function Navbar({ isAddVideo, img }) {
     fetchChannel();
   }, []);
 
-  return loading ? (
-    <h1>Loading...</h1>
-  ) : (
+  return (
     <Fragment>
       <div className='navNew fixed-top'>
-        <FormInput type='text' title='Search..' customClass='navbar-search' />
+        <FormInput
+          type='text'
+          title='Search . . .'
+          customClass='navbar-search'
+          onChange={onChange}
+        />
         <div className='addVideoNew'>
           <Link to='/add-video'>
             <img
@@ -65,14 +68,14 @@ export default function Navbar({ isAddVideo, img }) {
             <div className='profileNew'>
               <img
                 src={
-                  !channel.photo
+                  loading || !JSON.parse(channel.photo)
                     ? DefaultProfile
-                    : `http://localhost:5000/uploads/${channel.photo}`
+                    : JSON.parse(channel.photo).path
                 }
-                alt=''
+                alt='photo'
                 width='100%'
                 height='100%'
-                style={{ borderRadius: '7px', objectFit: 'cover' }}
+                style={{ borderRadius: '50%', objectFit: 'cover' }}
               />
             </div>
           </Dropdown.Toggle>

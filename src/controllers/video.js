@@ -1,5 +1,6 @@
 const { Video, Channel, Comment } = require('../../models');
 const Joi = require('joi');
+const { Op } = require('sequelize');
 
 //?  Get videos all
 exports.getVideoAll = async (req, res) => {
@@ -131,9 +132,18 @@ exports.addVideo = async (req, res) => {
     const { id } = req.id;
     const { body, files } = req;
 
-    const fileThumbnail = files.thumbnail[0].filename;
-    const fileVideo = files.video[0].filename;
+    const fileThumbnail = files.thumbnail ? files.thumbnail[0].filename : null;
+    const fileVideo = files.video ? files.video[0].filename : null;
+    const pathThumbnail = files.thumbnail ? files.thumbnail[0].path : null;
+    const pathVideo = files.video ? files.video[0].path : null;
     console.log(files);
+
+    if (!id) {
+      return res.send({
+        status: 'Request failed',
+        message: 'Invalid user',
+      });
+    }
 
     //? Validation
     const schema = Joi.object({
@@ -141,24 +151,64 @@ exports.addVideo = async (req, res) => {
       description: Joi.string().required(),
     });
 
-    const { error } = schema.validate(body, {
-      abortEarly: false,
-    });
+    const { error } = schema.validate();
 
+    //? Error Joi
     if (error) {
+      if (fileThumbnail) {
+        cloudinary.uploader.destroy(fileThumbnail.filename, (error, result) => {
+          console.log(error, result);
+        });
+      }
+
+      if (fileVideo) {
+        cloudinary.uploader.destroy(
+          fileVideo.filename,
+          { resource_type: 'video' },
+          (error, result) => {
+            console.log(error, result);
+          }
+        );
+      }
       return res.send({
         status: 'Request failed',
-        error: {
-          message: error.details.map((err) => err.message),
-        },
+        message: error.message,
+      });
+    }
+
+    if (!fileThumbnail) {
+      if (fileVideo) {
+        cloudinary.uploader.destroy(
+          fileVideo.filename,
+          { resource_type: 'video' },
+          (error, result) => {
+            console.log(error, result);
+          }
+        );
+      }
+      return res.send({
+        status: 'Request failed',
+        message: 'Please select thumbnail',
+      });
+    }
+
+    if (!fileVideo) {
+      if (fileThumbnail) {
+        cloudinary.uploader.destroy(fileThumbnail.filename, (error, result) => {
+          console.log(error, result);
+        });
+      }
+      return res.send({
+        status: 'Request failed',
+        message: 'Please select video',
       });
     }
 
     const newVideo = await Video.create({
       ...body,
       channelId: id,
-      thumbnail: fileThumbnail,
-      video: fileVideo,
+      thumbnail: pathThumbnail,
+      video: pathVideo,
       viewCount: 0,
     });
 
@@ -308,6 +358,47 @@ exports.deleteVideo = async (req, res) => {
       message: {
         error: 'Server error',
       },
+    });
+  }
+};
+
+exports.getSearchVideo = async (req, res) => {
+  try {
+    const { title } = req.body;
+
+    const videos = await Video.findAll({
+      where: {
+        title: {
+          [Op.like]: `%${title}%`,
+        },
+      },
+      attributes: {
+        exclude: ['updatedAt', 'channelId', 'ChannelId', 'description'],
+      },
+      include: {
+        model: Channel,
+        as: 'channel',
+        attributes: ['id', 'channelName'],
+      },
+    });
+    if (videos.length === 0) {
+      return res.send({
+        status: 'Request failed',
+        message: 'Not a video',
+      });
+    }
+
+    res.send({
+      status: 'Request success',
+      message: 'Videos was finding',
+      data: {
+        videos,
+      },
+    });
+  } catch (err) {
+    return res.send({
+      status: 'Request failed',
+      message: 'Server error',
     });
   }
 };

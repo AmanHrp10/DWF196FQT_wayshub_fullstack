@@ -1,5 +1,6 @@
 const Joi = require('joi');
-const { Channel, Video, Subscribe } = require('../../models');
+const { Channel, Video, Subscribe, Comment } = require('../../models');
+const { cloudinary } = require('../../config/cloudinary');
 
 //? Get all channels
 exports.getChannelsAll = async (req, res) => {
@@ -180,11 +181,43 @@ exports.getChannelById = async (req, res) => {
 
 exports.editChannel = async (req, res) => {
   try {
+    const { id: userId } = req.id;
     const { id } = req.params;
     const { body, files } = req;
 
-    const fileThumbnail = files.thumbnail[0].filename;
-    const filePhoto = files.photo[0].filename;
+    const channel = await Channel.findOne({
+      id,
+    });
+
+    const fileThumbnail = files.thumbnail
+      ? files.thumbnail[0]
+      : JSON.parse(channel.thumbnail);
+    const filePhoto = files.photo ? files.photo[0] : JSON.parse(channel.photo);
+
+    if (userId != id) {
+      if (fileThumbnail.encoding) {
+        if (fileThumbnail.filename !== 'defaultThumbnail/thumbnail_ap09qs') {
+          cloudinary.uploader.destroy(
+            fileThumbnail.filename,
+            (error, result) => {
+              console.log(error, result);
+            }
+          );
+        }
+      }
+
+      if (filePhoto.encoding) {
+        if (filePhoto.filename !== 'defaultPhoto/defaultProfile_shw4p3') {
+          cloudinary.uploader.destroy(filePhoto.filename, (error, result) => {
+            console.log(error, result);
+          });
+        }
+      }
+      return res.send({
+        status: 'Request failed',
+        message: 'Invalid user',
+      });
+    }
 
     const schema = Joi.object({
       email: Joi.string().min(10).email(),
@@ -197,17 +230,44 @@ exports.editChannel = async (req, res) => {
     });
 
     if (error) {
-      return res.status(400).send({
+      if (fileThumbnail.encoding) {
+        if (fileThumbnail.filename !== 'defaultThumbnail/thumbnail_ap09qs') {
+          cloudinary.uploader.destroy(
+            fileThumbnail.filename,
+            (error, result) => {
+              console.log(error, result);
+            }
+          );
+        }
+      }
+
+      if (filePhoto.encoding) {
+        if (filePhoto.filename !== 'defaultPhoto/defaultProfile_shw4p3') {
+          cloudinary.uploader.destroy(filePhoto.filename, (error, result) => {
+            console.log(error, result);
+          });
+        }
+      }
+      return res.send({
         status: 'Request failed',
-        message: error.details.map((err) => err.message),
+        message: error.message,
       });
     }
 
+    const thumbnailUpload = {
+      path: fileThumbnail.path,
+      filename: fileThumbnail.filename,
+    };
+
+    const photoUpload = {
+      path: filePhoto.path,
+      filename: filePhoto.filename,
+    };
     await Channel.update(
       {
         ...body,
-        thumbnail: fileThumbnail,
-        photo: filePhoto,
+        thumbnail: JSON.stringify(thumbnailUpload),
+        photo: JSON.stringify(photoUpload),
       },
       {
         where: {
@@ -242,11 +302,78 @@ exports.editChannel = async (req, res) => {
 //? Delete
 exports.deleteChannel = async (req, res) => {
   try {
+    const { id: userId } = req.id;
     const { id } = req.params;
+
+    if (userId !== id) {
+      return res.send({
+        status: 'Request failed',
+        message: 'Invalid user',
+      });
+    }
+
+    const channelById = await Channel.findOne({
+      where: {
+        id,
+      },
+    });
+
+    if (!channelById) {
+      return res.send({
+        status: 'Request failed',
+        message: 'Channel not found',
+      });
+    }
+
+    await Subscribe.destroy({
+      where: {
+        channelId: id,
+      },
+    });
+
+    await Subscribe.destroy({
+      where: {
+        subsChannelId: id,
+      },
+    });
+
+    await Comment.destroy({
+      where: {
+        channelId: id,
+      },
+    });
+
+    const videos = await Video.findAll({
+      where: {
+        channelId: id,
+      },
+    });
+
+    let videoId = [];
+
+    videos.map((video) => videoId.push(video.id));
+
+    await Comment.destroy({
+      where: {
+        id: videoId,
+      },
+    });
+
+    await Video.destroy({
+      where: {
+        channelId: id,
+      },
+    });
+
+    await Channel.destroy({
+      where: {
+        id,
+      },
+    });
 
     const deletedChannel = await Channel.destroy({ where: { id } });
 
-    res.status(200).send({
+    res.send({
       status: 'Request succes',
       message: 'Channel was deleted',
       data: {
@@ -254,7 +381,7 @@ exports.deleteChannel = async (req, res) => {
       },
     });
   } catch (err) {
-    return res.status(500).send({
+    return res.send({
       status: 'Request failed',
       message: err.message,
     });

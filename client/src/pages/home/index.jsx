@@ -6,6 +6,10 @@ import Moment from 'moment';
 
 export default function Home() {
   const [videos, setVideos] = useState([]);
+  const [videoFilter, setVideoFilter] = useState([]);
+  let [search, setSearch] = useState({
+    query: '',
+  });
 
   const fetchVideo = async () => {
     try {
@@ -17,6 +21,28 @@ export default function Home() {
     }
   };
 
+  const handleSearch = async (e) => {
+    let keyword = e.target.value;
+
+    const body = JSON.stringify({ title: keyword });
+    const config = {
+      headers: {
+        'content-type': 'application/json',
+      },
+    };
+    try {
+      const response = await API.post('/search', body, config);
+
+      if (response.data.status === 'Request failed') {
+        setVideoFilter([]);
+      }
+
+      setVideoFilter(response.data.data.videos);
+    } catch (err) {
+      console.log(err);
+    }
+    setSearch((search = keyword));
+  };
   useEffect(() => {
     fetchVideo();
   }, []);
@@ -24,30 +50,60 @@ export default function Home() {
   const createdAt = videos.map((video) => video.createdAt);
   const date = Moment(createdAt[0]).format('ll');
 
-  const videoSort = videos.sort((a, b) => a.createdAt - b.createdAt);
-
+  console.log(videoFilter);
   return (
     <Fragment>
-      <MainMenu isHome />
+      <MainMenu isHome onChangeSearch={handleSearch} />
       <div
         className='container'
         style={{ marginLeft: '265px', paddingTop: '110px', width: '1063px' }}
       >
         <div className='row'>
-          {videoSort.map((video, index) => {
-            return (
-              <div className='col-md-3' key={index}>
-                <Card
-                  id={video.id}
-                  title={video.title}
-                  image={`http://localhost:5000/Uploads/${video.thumbnail}`}
-                  views={video.viewCount}
-                  date={date}
-                  channel={video.channel.channelName}
-                />
-              </div>
-            );
-          })}
+          {search.length == null ? (
+            videos
+              .sort((a, b) => b.id - a.id)
+              .map((video, index) => {
+                return (
+                  <div className='col-md-3' key={index}>
+                    <Card
+                      id={video.id}
+                      title={video.title}
+                      image={video.thumbnail}
+                      views={video.viewCount}
+                      date={date}
+                      channel={video.channel.channelName}
+                    />
+                  </div>
+                );
+              })
+          ) : videoFilter.length === 0 ? (
+            <div
+              style={{
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+              }}
+            >
+              <h1>Not a video</h1>
+            </div>
+          ) : (
+            videoFilter
+              .sort((a, b) => b.id - a.id)
+              .map((video, index) => {
+                return (
+                  <div className='col-md-3' key={index}>
+                    <Card
+                      id={video.id}
+                      title={video.title}
+                      image={video.thumbnail}
+                      views={video.viewCount}
+                      date={date}
+                      channel={video.channel.channelName}
+                    />
+                  </div>
+                );
+              })
+          )}
         </div>
       </div>
     </Fragment>

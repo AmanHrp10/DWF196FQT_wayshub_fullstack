@@ -4,7 +4,12 @@ import Navbar from '../navbar';
 import './mainMenu.css';
 import { AppContext } from '../../../context/appContext';
 
-export default function Menu({ isHome, isSubscribed, isAddVideo }) {
+export default function Menu({
+  isHome,
+  isSubscribed,
+  isAddVideo,
+  onChangeSearch,
+}) {
   // const [state, dispatch] = useContext(AppContext);
   // const { channel } = state;
 
@@ -12,7 +17,7 @@ export default function Menu({ isHome, isSubscribed, isAddVideo }) {
   return (
     <Fragment>
       <Sidebar isHome={isHome} isSubscribed={isSubscribed} />
-      <Navbar isAddVideo={isAddVideo} />
+      <Navbar isAddVideo={isAddVideo} onChange={onChangeSearch} />
     </Fragment>
   );
 }

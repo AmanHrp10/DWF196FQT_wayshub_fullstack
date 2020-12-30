@@ -4,6 +4,7 @@ const router = express.Router();
 //? Middleware
 const { auth: Private } = require('../middleware/auth');
 const { uploadFile } = require('../middleware/upload');
+const { uploadCloud } = require('../middleware/uploadCloudinary');
 
 //? Subscribtion
 const {
@@ -12,6 +13,7 @@ const {
   getSubscribers,
   getCountSubscriber,
   getSubscribeById,
+  getSubscribersVideoFilter,
 } = require('../controllers/subscribe');
 
 //? Register & Login
@@ -35,6 +37,7 @@ const {
   addVideo,
   updateVideo,
   deleteVideo,
+  getSearchVideo,
 } = require('../controllers/video');
 
 //? Comments
@@ -52,6 +55,7 @@ const {
 router.post('/subscribe/:id', Private, addSubscribe);
 router.delete('/subscribe/:id', Private, removeSubscribe);
 router.get('/subscribes', Private, getSubscribers);
+router.post('/search-subscribe', Private, getSubscribersVideoFilter);
 router.get('/subscribe-count', Private, getCountSubscriber);
 router.get('/subscribe/:id', Private, getSubscribeById);
 
@@ -66,7 +70,7 @@ router.get('/channel/:id', getChannelById);
 router.get('/channel', Private, getMyProfile);
 router.patch(
   '/channel/:id',
-  uploadFile('thumbnail', 'photo'),
+  uploadCloud('thumbnail', 'photo'),
   Private,
   editChannel
 );
@@ -75,7 +79,8 @@ router.delete('/channel/:id', Private, deleteChannel);
 //? Video routes
 router.get('/videos', getVideoAll);
 router.get('/video/:id', getVideoById);
-router.post('/video', Private, uploadFile('thumbnail', 'video'), addVideo);
+router.post('/search', getSearchVideo);
+router.post('/video', Private, uploadCloud('thumbnail', 'video'), addVideo);
 router.patch('/video/:id', Private, updateVideo);
 router.delete('/video/:id', Private, deleteVideo);
 

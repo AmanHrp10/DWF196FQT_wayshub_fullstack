@@ -1,12 +1,16 @@
 const multer = require('multer');
+const { cloudinary } = require('../../config/cloudinary');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
-exports.uploadFile = (file1, file2) => {
-  const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      return cb(null, 'uploads/');
-    },
-    filename: (req, file, cb) => {
-      return cb(null, Date.now() + '-' + file.originalname);
+exports.uploadCloud = (file1, file2) => {
+  const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: async (req, file) => {
+      return {
+        folder: `${file.fieldname}`,
+        resource_type: file.fieldname === 'video' ? 'video' : 'image',
+        public_id: `${Date.now()}-${file.originalname}`,
+      };
     },
   });
   //? handle video table upload file
@@ -42,7 +46,7 @@ exports.uploadFile = (file1, file2) => {
     cb(null, true);
   };
 
-  const maxSize = 200 * 1000 * 1000;
+  const maxSize = 200 * 1024 * 1024;
 
   const upload = multer({
     storage,
@@ -76,7 +80,7 @@ exports.uploadFile = (file1, file2) => {
       if (err) {
         if (err.code === 'LIMIT_FILE_SIZE') {
           return res.status(400).send({
-            message: 'Max file sized 100MB',
+            message: 'Max file sized 200MB',
           });
         }
         return res.status(400).send(err);

@@ -19,7 +19,7 @@ exports.login = async (req, res) => {
 
     //? Show error
     if (error) {
-      return res.status(400).send({
+      return res.send({
         status: 'Request failed',
         message: error.details.map((err) => err.message),
       });
@@ -44,7 +44,7 @@ exports.login = async (req, res) => {
 
     //?if email not exist
     if (!channel) {
-      return res.status(400).send({
+      return res.send({
         status: 'Request failed',
         error: {
           message: 'Invalid login',
@@ -57,7 +57,7 @@ exports.login = async (req, res) => {
 
     //? if not password
     if (!passEncrypt) {
-      return res.status(401).send({
+      return res.send({
         status: 'Request failed',
         message: 'Invalid login',
       });
@@ -68,7 +68,7 @@ exports.login = async (req, res) => {
     const token = jwt.sign({ id: channel.id }, privateKey);
 
     //? Response login
-    res.status(200).send({
+    res.send({
       status: 'Request succes',
       message: 'Successfully login',
       data: {

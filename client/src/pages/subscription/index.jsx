@@ -45,7 +45,7 @@ export default function Subcription() {
                         id={video.id}
                         title={video.title}
                         channel={channel.channelName}
-                        image={`http://localhost:5000/Uploads/${video.thumbnail}`}
+                        image={video.thumbnail}
                         views={video.viewCount}
                         date={Moment(video.createdAt).format('ll')}
                       />

@@ -22,6 +22,8 @@ const reducer = (state, action) => {
           JSON.stringify({
             id: action.payload.id,
             channelName: action.payload.channelName,
+            description: action.payload.description,
+            photo: action.payload.photo,
           })
         ),
         token: localStorage.setItem('token', action.payload.token),
@@ -37,18 +39,20 @@ const reducer = (state, action) => {
           JSON.stringify({
             id: action.payload.id,
             channelName: action.payload.channelName,
+            description: action.payload.description,
+            photo: action.payload.photo,
           })
         ),
       };
     case 'SUBSCRIBE':
       return {
         ...state,
-        subscribtion: action.payload.subscribe,
+        subscribtion: action.payload.subscribtion,
       };
     case 'UNSUBSCRIBE':
       return {
         ...state,
-        subscribtion: action.payload.subscribe,
+        subscribtion: action.payload.subscribtion,
       };
     case 'LOAD_SUBSCRIBTION':
       return {

@@ -29,7 +29,7 @@ export default function Card({ id, title, channel, image, views, date, key }) {
         >
           {title}
         </p>
-        <p>{channel}</p>
+        <p style={{ marginTop: '-10px' }}>{channel}</p>
         <div className='d-flex detail justify-content-between'>
           <span className=''>
             <img

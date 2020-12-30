@@ -13,7 +13,10 @@ import { AppContext } from '../../../context/appContext';
 
 export default function Sidebar({ isHome, isSubscribed }) {
   const [state, dispatch] = useContext(AppContext);
+  const [loading, setLoading] = useState(true);
   const router = useHistory();
+
+  // const deps = state.subscribtion;
 
   const fetchSubscribers = async () => {
     try {
@@ -30,7 +33,7 @@ export default function Sidebar({ isHome, isSubscribed }) {
   };
   useEffect(() => {
     fetchSubscribers();
-  }, [state]);
+  }, []);
 
   return (
     <Fragment>
@@ -56,44 +59,43 @@ export default function Sidebar({ isHome, isSubscribed }) {
           </ul>
         </div>
         <div className='channel-list'>
-          {state.subscribtion.length > 0 && <h5>Channels</h5>}
+          {state.subscribtion && state.subscribtion.length > 0 && (
+            <h5>Channels</h5>
+          )}
           <ul className='channelList'>
-            {state.subscribtion
-              .sort((a, b) => b.id - a.id)
-              .map((channel, index) => (
-                <li
-                  key={index}
-                  style={{
-                    textOverflow: 'ellipsis',
-                    overflow: 'hidden',
-                    width: '100%',
-                    display: 'inline-block',
-                    whiteSpace: 'nowrap',
-                    cursor: 'pointer',
-                  }}
-                  onClick={() => {
-                    router.push(`/content-creator/${channel.id}`);
-                    window.location.reload();
-                  }}
-                >
-                  <img
+            {state.subscribtion &&
+              state.subscribtion
+                .sort((a, b) => b.id - a.id)
+                .map((channel, index) => (
+                  <li
+                    key={index}
                     style={{
-                      width: '40px',
-                      height: '40px',
-                      borderRadius: '5px',
+                      textOverflow: 'ellipsis',
+                      overflow: 'hidden',
+                      width: '100%',
+                      display: 'inline-block',
+                      whiteSpace: 'nowrap',
+                      cursor: 'pointer',
                     }}
-                    src={
-                      !channel.photo
-                        ? DefaultProfile
-                        : `http://localhost:5000/uploads/${channel.photo}`
-                    }
-                    alt=''
-                  />
-                  {channel.channelName}
-                </li>
-              ))}
+                    onClick={() => {
+                      router.push(`/content-creator/${channel.id}`);
+                    }}
+                  >
+                    <img
+                      style={{
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '5px',
+                        objectFit: 'cover',
+                      }}
+                      src={JSON.parse(channel.photo).path}
+                      alt=''
+                    />
+                    {channel.channelName}
+                  </li>
+                ))}
           </ul>
-          {state.subscribtion > 5 && (
+          {state.subscribtion && state.subscribtion.length > 3 && (
             <Button title='Show More' customClass='btn-secondary ml-4' />
           )}
         </div>

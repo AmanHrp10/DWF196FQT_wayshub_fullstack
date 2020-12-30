@@ -10,8 +10,7 @@ import { AppContext } from '../../../context/appContext';
 import { useHistory } from 'react-router-dom';
 
 export default function FormEditChannel() {
-  const [state] = useContext(AppContext);
-  const { channel } = state;
+  const channel = JSON.parse(localStorage.getItem('user'));
   const [formData, setFormData] = useState({
     channelName: channel.channelName,
     thumbnail: '',
@@ -22,9 +21,9 @@ export default function FormEditChannel() {
   const router = useHistory();
 
   const body = new FormData();
-  body.append('channelName', channel.channelName);
+  body.append('channelName', channelName);
   body.append('thumbnail', thumbnail);
-  body.append('description', channel.description);
+  body.append('description', description);
   body.append('photo', photo);
 
   const config = {
@@ -46,7 +45,6 @@ export default function FormEditChannel() {
       });
 
       router.push('/channel/profile');
-      window.location.reload();
       console.log(body);
     } catch (err) {
       console.log(err);
@@ -69,7 +67,8 @@ export default function FormEditChannel() {
       <div className='line1 my-4'>
         <FormInput
           customClass='inputClass'
-          title={channel.channelName}
+          title='Channel Name'
+          value={channelName}
           onChange={(e) => handleChange(e)}
           name='channelName'
         />
@@ -88,7 +87,8 @@ export default function FormEditChannel() {
         />
       </div>
       <TextArea
-        title={channel.description}
+        title='Description'
+        value={description}
         customClass='areaClass mb-4'
         onChange={(e) => handleChange(e)}
         name='description'

@@ -4,7 +4,6 @@ import IconDate from '../../../images/refresh1.png';
 import TextArea from '../../atoms/textarea';
 import Comment from '../comment';
 import Card from '../Card';
-import DefaultProfile from '../../../images/channel/defaultProfile.png';
 
 // library
 import ReactPlayer from 'react-player';
@@ -14,10 +13,13 @@ import './detailVideo.css';
 import { API } from '../../../config/api';
 import Moment from 'moment';
 import { AppContext } from '../../../context/appContext';
+import Button from '../../atoms/button';
 
 export default function DetailVideo() {
   const [state, dispatch] = useContext(AppContext);
   const [video, setVideo] = useState('');
+  const [recomendationVideos, setRecomendationVideos] = useState([]);
+  const [maxShowVideos, setMaxShowVideos] = useState(3);
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   let [isSubscribe, setIsSubscribe] = useState(false);
@@ -30,6 +32,41 @@ export default function DetailVideo() {
   const { comment } = formData;
   let { id } = useParams();
   const router = useHistory();
+
+  const randomIndex = (max) => {
+    const randomNumber = [];
+
+    for (let i = 0; i < max; i++) {
+      let newNumber = Math.floor(Math.random() * max);
+
+      const checkNumber = randomNumber.indexOf(newNumber);
+
+      if (checkNumber < 0) {
+        randomNumber.push(newNumber);
+      } else {
+        i--;
+      }
+    }
+    return randomNumber;
+  };
+
+  const fetchVideos = async () => {
+    try {
+      const response = await API('/videos');
+      const numbers = randomIndex(response.data.data.videos.length);
+      let randomVideos = [];
+      numbers.map((number) =>
+        randomVideos.push(response.data.data.videos[number])
+      );
+      setRecomendationVideos(randomVideos);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const showMore = () => {
+    setMaxShowVideos(maxShowVideos + 2);
+  };
 
   const fetchSubscribers = async () => {
     try {
@@ -47,7 +84,7 @@ export default function DetailVideo() {
     }
   };
 
-  const fetchVideo = async () => {
+  const fetchVideoById = async () => {
     try {
       setLoading(true);
 
@@ -76,20 +113,22 @@ export default function DetailVideo() {
   const subscribe = async () => {
     try {
       const response = await API.post(`/subscribe/${video.channel.id}`);
+      console.log(response);
       if (response.data.status === 'Request success') {
         setSubscriber(subscriber + 1);
-        setIsSubscribe((isSubscribe = !isSubscribe));
-        const subscribe = [...state.subscribtions];
+
+        const subscribe = [...state.subscribtion];
         subscribe.push(response.data.data.subscribed);
 
         const afterSubscribe = {
-          subscriptions: subscribe,
+          subscribtion: subscribe,
         };
 
         dispatch({
           type: 'SUBSCRIBE',
           payload: afterSubscribe,
         });
+        setIsSubscribe((isSubscribe = !isSubscribe));
       }
     } catch (err) {
       console.log(err);
@@ -99,22 +138,23 @@ export default function DetailVideo() {
     try {
       const response = await API.delete(`/subscribe/${video.channel.id}`);
       if (response.data.status === 'Request success') {
-        setSubscriber(subscriber - 1);
-        setIsSubscribe((isSubscribe = !isSubscribe));
-        const indexUnsubsribe = state.subscribtions.findIndex(
+        const indexUnsubscribe = state.subscribtion.findIndex(
           (subscribtion) => subscribtion.id === parseInt(response.data.data.id)
         );
-        const subscribe = [...state.subscribtions];
-        subscribe.splice(indexUnsubsribe, 1);
+
+        const subscribe = [...state.subscribtion];
+        subscribe.splice(indexUnsubscribe, 1);
 
         const afterUnsubscribe = {
-          subscriprions: subscribe,
+          subscribtion: subscribe,
         };
 
         dispatch({
           type: 'UNSUBSCRIBE',
           payload: afterUnsubscribe,
         });
+        setSubscriber(subscriber - 1);
+        setIsSubscribe((isSubscribe = !isSubscribe));
       }
     } catch (err) {
       console.log(err);
@@ -140,8 +180,9 @@ export default function DetailVideo() {
     }
   };
   useEffect(() => {
-    fetchVideo();
+    fetchVideoById();
     fetchSubscribers();
+    fetchVideos();
   }, [id]);
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -149,18 +190,21 @@ export default function DetailVideo() {
 
   const date = Moment(video.createdAt).format('ll');
 
+  console.log(channel);
+
   return loading ? (
     <h1
-      className='text-warning'
-      style={{ position: 'absolute', top: '50%', left: '50%' }}
+      className='text-warning d-flex flex-column'
+      style={{ position: 'absolute', top: '40%', left: '50%' }}
     >
       <div
         className='spinner-grow text-warning'
         style={{ width: '6rem', height: '6rem' }}
         role='status'
-      >
-        <span className='visually-hidden'>Loading...</span>
-      </div>
+      ></div>
+      <span className='spinner' style={{ marginLeft: '-20px' }}>
+        Loading...
+      </span>
     </h1>
   ) : (
     <div>
@@ -169,8 +213,9 @@ export default function DetailVideo() {
           <div className='videoDetail'>
             <ReactPlayer
               width='100%'
+              style={{ border: 'none' }}
               controls
-              url={`http://localhost:5000/uploads/${video.video}`}
+              url={video.video}
             />
             <div className='desc-video'>
               <h5
@@ -199,15 +244,11 @@ export default function DetailVideo() {
                   style={{ cursor: 'pointer' }}
                 >
                   <img
-                    src={
-                      !video.channel.photo
-                        ? DefaultProfile
-                        : `http://localhost:5000/uploads/${video.channel.photo}`
-                    }
+                    src={JSON.parse(video.channel.photo).path}
                     alt=''
                     width='50%'
                     height='50%'
-                    style={{ marginRight: '10px' }}
+                    style={{ marginRight: '10px', objectFit: 'cover' }}
                   />
                   <div style={{ width: '500px' }}>
                     <h6 className='text-white' style={{ whiteSpace: 'nowrap' }}>
@@ -236,18 +277,15 @@ export default function DetailVideo() {
           <div className='areaComment'>
             <div className='comment d-flex'>
               <img
-                src={
-                  !channel.photo
-                    ? DefaultProfile
-                    : `http://localhost:5000/uploads/${channel.photo}`
-                }
+                src={JSON.parse(channel.photo).path}
                 alt=''
                 width='45px'
                 height='60px'
+                style={{ objectFit: 'cover' }}
               />
               <div className='textarea'>
                 <TextArea
-                  placeholder='Comment...'
+                  title='Add a comment . . .'
                   className='ml-4'
                   value={comment}
                   name='comment'
@@ -269,11 +307,7 @@ export default function DetailVideo() {
                 <Comment
                   key={index}
                   channel={comment.channel.channelName}
-                  img={
-                    !comment.channel.photo
-                      ? DefaultProfile
-                      : `http://localhost:5000/Uploads/${comment.channel.photo}`
-                  }
+                  img={JSON.parse(channel.photo).path}
                   text={comment.comment}
                 />
               ))}
@@ -282,17 +316,30 @@ export default function DetailVideo() {
         <div className='recomendation'>
           <h5 className='text-white'> Recomendation</h5>
           <hr color='white' />
-          {HomeVideos.map((video, index) => (
-            <Card
-              key={video.id}
-              id={video.id}
-              title={video.title}
-              channel={video.channel}
-              image={video.image}
-              views={video.views}
-              date={video.date}
-            />
-          ))}
+          {recomendationVideos.map((recomendationVideo, index) =>
+            recomendationVideos.indexOf(recomendationVideo) >
+            maxShowVideos ? null : recomendationVideo.id === video.id ? null : (
+              <Card
+                key={recomendationVideo.id}
+                id={recomendationVideo.id}
+                title={recomendationVideo.title}
+                channel={recomendationVideo.channel.channelName}
+                image={recomendationVideo.thumbnail}
+                views={recomendationVideo.viewCount}
+                date={Moment(recomendationVideo.createdAt).format('ll')}
+              />
+            )
+          )}
+
+          {maxShowVideos > recomendationVideos.length ? null : (
+            <div className='d-flex justify-content-end'>
+              <Button
+                title='Show More'
+                onClick={showMore}
+                customClass='btn btn-sm btn-secondary'
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

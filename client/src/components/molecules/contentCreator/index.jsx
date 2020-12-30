@@ -12,7 +12,6 @@ export default function ContentCreator() {
   const [loading, setLoading] = useState(true);
   let [subscribers, setSubscribers] = useState();
   const [state, dispatch] = useContext(AppContext);
-  const { channel: thisChannel } = state;
 
   let [isSubscribe, setIsSubscribe] = useState(false);
 
@@ -65,18 +64,19 @@ export default function ContentCreator() {
       const response = await API.post(`/subscribe/${id}`);
       if (response.data.status === 'Request success') {
         setSubscribers(subscribers + 1);
-        setIsSubscribe((isSubscribe = !isSubscribe));
-        const subscribe = [...state.subscribtions];
+
+        const subscribe = [...state.subscribtion];
         subscribe.push(response.data.data.subscribed);
 
         const afterSubscribe = {
-          subscriptions: subscribe,
+          subscribtion: subscribe,
         };
 
         dispatch({
           type: 'SUBSCRIBE',
           payload: afterSubscribe,
         });
+        setIsSubscribe((isSubscribe = !isSubscribe));
       }
     } catch (err) {
       console.log(err);
@@ -86,55 +86,103 @@ export default function ContentCreator() {
     try {
       const response = await API.delete(`/subscribe/${id}`);
       if (response.data.status === 'Request success') {
-        setSubscribers(subscribers - 1);
-        setIsSubscribe((isSubscribe = !isSubscribe));
-        const indexUnsubsribe = state.subscribtions.findIndex(
+        const indexUnsubsribe = state.subscribtion.findIndex(
           (subscribtion) => subscribtion.id === parseInt(response.data.data.id)
         );
-        const subscribe = [...state.subscribtions];
+        const subscribe = [...state.subscribtion];
         subscribe.splice(indexUnsubsribe, 1);
 
         const afterUnsubscribe = {
-          subscriprions: subscribe,
+          subscribtion: subscribe,
         };
 
         dispatch({
           type: 'UNSUBSCRIBE',
           payload: afterUnsubscribe,
         });
+        setSubscribers(subscribers - 1);
+        setIsSubscribe((isSubscribe = !isSubscribe));
       }
     } catch (err) {
       console.log(err);
     }
   };
+  // const subscribe = async () => {
+  //   try {
+  //     const response = await API.post(`/subscribe/${video.channel.id}`);
+  //     console.log(response);
+  //     if (response.data.status === 'Request success') {
+  //       setSubscriber(subscriber + 1);
+
+  //       const subscribe = [...state.subscribtion];
+  //       subscribe.push(response.data.data.subscribed);
+
+  //       const afterSubscribe = {
+  //         subscribtion: subscribe,
+  //       };
+
+  //       dispatch({
+  //         type: 'SUBSCRIBE',
+  //         payload: afterSubscribe,
+  //       });
+  //       setIsSubscribe((isSubscribe = !isSubscribe));
+  //     }
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // };
+  // const unSubscribe = async () => {
+  //   try {
+  //     const response = await API.delete(`/subscribe/${video.channel.id}`);
+  //     if (response.data.status === 'Request success') {
+  //       const indexUnsubscribe = state.subscribtion.findIndex(
+  //         (subscribtion) => subscribtion.id === parseInt(response.data.data.id)
+  //       );
+
+  //       const subscribe = [...state.subscribtion];
+  //       subscribe.splice(indexUnsubscribe, 1);
+
+  //       const afterUnsubscribe = {
+  //         subscribtion: subscribe,
+  //       };
+
+  //       dispatch({
+  //         type: 'UNSUBSCRIBE',
+  //         payload: afterUnsubscribe,
+  //       });
+  //       setSubscriber(subscriber - 1);
+  //       setIsSubscribe((isSubscribe = !isSubscribe));
+  //     }
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // };
+
   useEffect(() => {
     fetchSubscribers();
     fetchChannel();
-  }, []);
+  }, [id]);
 
   return loading ? (
     <h1
-      className='text-warning'
-      style={{ position: 'absolute', top: '50%', left: '50%' }}
+      className='text-warning d-flex flex-column'
+      style={{ position: 'absolute', top: '40%', left: '50%' }}
     >
       <div
         className='spinner-grow text-warning'
         style={{ width: '6rem', height: '6rem' }}
         role='status'
-      >
-        <span className='visually-hidden'>Loading...</span>
-      </div>
+      ></div>
+      <span className='spinner' style={{ marginLeft: '-20px' }}>
+        Loading...
+      </span>
     </h1>
   ) : (
     <>
       <div className='bg'>
         <img
-          src={
-            !channel.thumbnail
-              ? DefaultProfile
-              : `http://localhost:5000/Uploads/${channel.thumbnail}`
-          }
-          alt=''
+          src={JSON.parse(channel.thumbnail).path}
+          alt='thumbnail'
           style={{ marginLeft: '720px', objectFit: 'cover' }}
           width='100%'
           height='100%'
@@ -144,16 +192,13 @@ export default function ContentCreator() {
       <div className='about'>
         <div className='profileDesc'>
           <div className='image'>
-            {!channel.photo ? (
-              <img src={DefaultProfile} alt='' width='90%' height='100%' />
-            ) : (
-              <img
-                src={`http://localhost:5000/Uploads/${channel.photo}`}
-                alt=''
-                width='90%'
-                height='100%'
-              />
-            )}
+            <img
+              src={JSON.parse(channel.photo).path}
+              alt='photo'
+              width='90%'
+              height='100%'
+              style={{ objectFit: 'cover' }}
+            />
           </div>
           <div className='channelDesc'>
             <h6 className='text-white'>{channel.channelName}</h6>
@@ -186,7 +231,7 @@ export default function ContentCreator() {
                     id={video.id}
                     title={video.title}
                     channel={channel.channelName}
-                    image={`http://localhost:5000/Uploads/${video.thumbnail}`}
+                    image={video.thumbnail}
                     views={video.viewCount}
                     date={Moment(video.createdAt).format('ll')}
                   />
