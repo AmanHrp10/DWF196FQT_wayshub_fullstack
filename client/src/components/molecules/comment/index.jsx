@@ -3,7 +3,7 @@ import './comment.css';
 export default function Comment({ img, text, channel }) {
   return (
     <div className='comments'>
-      <img src={img} alt='' />
+      <img src={img} alt='' style={{ objectFit: 'cover' }} />
       <div className='comment'>
         <span className='text-secondary'>{channel}</span>
         <p

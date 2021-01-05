@@ -6,17 +6,19 @@ import HomeActive from '../../../images/icon/homeActive.png';
 import Sub from '../../../images/icon/sub.png';
 import SubActive from '../../../images/icon/subActive.png';
 import { API } from '../../../config/api';
-import DefaultProfile from '../../../images/channel/defaultProfile.png';
 import Button from '../../atoms/button';
 import './sidebar.css';
 import { AppContext } from '../../../context/appContext';
 
 export default function Sidebar({ isHome, isSubscribed }) {
   const [state, dispatch] = useContext(AppContext);
-  const [loading, setLoading] = useState(true);
+  const [maxShow, setMaxShow] = useState(4);
+
   const router = useHistory();
 
-  // const deps = state.subscribtion;
+  const showMore = () => {
+    setMaxShow(maxShow + 1);
+  };
 
   const fetchSubscribers = async () => {
     try {
@@ -34,6 +36,8 @@ export default function Sidebar({ isHome, isSubscribed }) {
   useEffect(() => {
     fetchSubscribers();
   }, []);
+
+  console.log(maxShow);
 
   return (
     <Fragment>
@@ -66,37 +70,43 @@ export default function Sidebar({ isHome, isSubscribed }) {
             {state.subscribtion &&
               state.subscribtion
                 .sort((a, b) => b.id - a.id)
-                .map((channel, index) => (
-                  <li
-                    key={index}
-                    style={{
-                      textOverflow: 'ellipsis',
-                      overflow: 'hidden',
-                      width: '100%',
-                      display: 'inline-block',
-                      whiteSpace: 'nowrap',
-                      cursor: 'pointer',
-                    }}
-                    onClick={() => {
-                      router.push(`/content-creator/${channel.id}`);
-                    }}
-                  >
-                    <img
+                .map((channel, index) =>
+                  state.subscribtion.indexOf(channel) > maxShow ? null : (
+                    <li
+                      key={index}
                       style={{
-                        width: '40px',
-                        height: '40px',
-                        borderRadius: '5px',
-                        objectFit: 'cover',
+                        textOverflow: 'ellipsis',
+                        overflow: 'hidden',
+                        width: '100%',
+                        display: 'inline-block',
+                        whiteSpace: 'nowrap',
+                        cursor: 'pointer',
                       }}
-                      src={JSON.parse(channel.photo).path}
-                      alt=''
-                    />
-                    {channel.channelName}
-                  </li>
-                ))}
+                      onClick={() => {
+                        router.push(`/content-creator/${channel.id}`);
+                      }}
+                    >
+                      <img
+                        style={{
+                          width: '40px',
+                          height: '40px',
+                          borderRadius: '5px',
+                          objectFit: 'cover',
+                        }}
+                        src={JSON.parse(channel.photo).path}
+                        alt=''
+                      />
+                      {channel.channelName}
+                    </li>
+                  )
+                )}
           </ul>
-          {state.subscribtion && state.subscribtion.length > 3 && (
-            <Button title='Show More' customClass='btn-secondary ml-4' />
+          {maxShow > state.subscribtion.length ? null : (
+            <Button
+              title='Show More'
+              customClass='btn-secondary ml-4'
+              onClick={showMore}
+            />
           )}
         </div>
       </div>

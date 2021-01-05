@@ -1,19 +1,18 @@
-import { useState, useContext, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 import DefaultProfile from '../../../images/channel/defaultProfile.png';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import Videos from '../myVideos';
 import Desc from '../descriptionChannel';
 import './style.css';
-import { AppContext } from '../../../context/appContext';
 import { API } from '../../../config/api';
 
 export default function MyChannel() {
   let [isDesc, setIsDesc] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [state] = useContext(AppContext);
   const [channel, setChannel] = useState();
 
+  const router = useHistory();
   const fetchChannel = async () => {
     try {
       setLoading(true);
@@ -87,7 +86,9 @@ export default function MyChannel() {
             </div>
             <div className='channelDesc'>
               <h6 className='text-white'>{channel.channelName}</h6>
-              <p>{channel.subscribers.length} Subscriber</p>
+              <p className='subscriber'>
+                {channel.subscribers.length} Subscriber
+              </p>
             </div>
             <div className='buttonEdit'>
               <Link to='/channel/edit'>

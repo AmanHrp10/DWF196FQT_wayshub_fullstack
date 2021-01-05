@@ -1,4 +1,3 @@
-import HomeVideos from '../../../API/homeVideo';
 import IconView from '../../../images/view1.png';
 import IconDate from '../../../images/refresh1.png';
 import TextArea from '../../atoms/textarea';
@@ -162,7 +161,7 @@ export default function DetailVideo() {
   };
 
   const handleAddComment = async (e) => {
-    // e.preventDefault();
+    e.preventDefault();
     const body = formData;
     const config = {
       headers: {
@@ -307,7 +306,7 @@ export default function DetailVideo() {
                 <Comment
                   key={index}
                   channel={comment.channel.channelName}
-                  img={JSON.parse(channel.photo).path}
+                  img={JSON.parse(comment.channel.photo).path}
                   text={comment.comment}
                 />
               ))}

@@ -14,7 +14,10 @@ body {
 
 
 /*? Handle css bootstrap */
-** Button */ .btn,
+** Button */ 
+
+.btn,
+.btn:focus,
 .btn-primary,
 .btn-success,
 .btn-success:hover,

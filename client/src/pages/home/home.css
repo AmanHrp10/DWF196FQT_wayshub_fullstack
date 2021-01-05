@@ -1,0 +1,13 @@
+.filter {
+    padding: 5px 15px;
+    border: none;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.filter:focus{
+    border: none;
+}
+.filter:active{
+    border: none;
+}

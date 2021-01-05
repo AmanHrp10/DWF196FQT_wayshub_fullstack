@@ -17,6 +17,8 @@ import { AppContext } from './context/appContext';
 
 // Css
 import './App.css';
+import MySubscribersPage from './pages/mySubscribers/index';
+import Subscriber from './pages/subscriber/index';
 
 //? Cek Token on headers
 if (localStorage.token) {
@@ -63,6 +65,7 @@ function App() {
         <PrivateRoute exact path='/channel/profile' component={MyChannel} />
         <PrivateRoute exact path='/subcribtion' component={Subscribed} />
         <PrivateRoute exact path='/detail-video/:id' component={DetailVideo} />
+        <PrivateRoute exact path='/subscriber/:id' component={Subscriber} />
         <PrivateRoute
           exact
           path='/content-creator/:id'

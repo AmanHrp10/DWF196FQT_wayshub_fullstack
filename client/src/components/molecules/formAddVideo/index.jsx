@@ -31,14 +31,6 @@ export default function FormAdd() {
     body.append('description', description);
     body.append('thumbnail', thumbnail);
     body.append('video', video);
-
-    // if (fileThumbnail.current.files[0]) {
-    //   body.append('thumbnail', thumbnail);
-    // }
-
-    // if (fileVideo.current.files[0]) {
-    //   body.append('video', video);
-    // }
     const config = {
       headers: {
         'content-type': 'multipart/form-data',

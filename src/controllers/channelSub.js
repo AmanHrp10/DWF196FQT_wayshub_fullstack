@@ -109,7 +109,7 @@ exports.getMyProfile = async (req, res) => {
   }
 };
 
-//? Get data by id
+//? Get Channel by id
 exports.getChannelById = async (req, res) => {
   try {
     // const { id } = req.id;
@@ -148,6 +148,20 @@ exports.getChannelById = async (req, res) => {
           },
           attributes: {
             exclude: ['password', 'createdAt', 'updatedAt', 'Subscribes'],
+          },
+        },
+        {
+          model: Channel,
+          as: 'subscribers',
+          attributes: {
+            exclude: ['password', 'createdAt', 'updatedAt'],
+          },
+          include: {
+            model: Channel,
+            as: 'subscribers',
+          },
+          through: {
+            attributes: [],
           },
         },
       ],
